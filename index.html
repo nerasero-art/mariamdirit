@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronofilia - Timeline Storica Interdisciplinare</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Faustina:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#FAF6ED',
+                            100: '#F4EAD5',
+                            200: '#E7D7B5',
+                            300: '#D5BE91',
+                            800: '#3D3124',
+                            900: '#261D15',
+                        },
+                        imperial: {
+                            gold: '#D4AF37',
+                            bronze: '#996515',
+                            crimson: '#800020',
+                            navy: '#1A2B4C',
+                            emerald: '#1B4D3E',
+                            purple: '#4B0082'
+                        }
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        body: ['Faustina', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Parchment Texture Background */
+        body {
+            background-color: #f4ead5;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(0, 0, 0, 0.05) 100%),
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+            color: #261d15;
+        }
+
+        /* Custom Horizontal Scrollbar */
+        .timeline-scroll::-webkit-scrollbar {
+            height: 12px;
+        }
+        .timeline-scroll::-webkit-scrollbar-track {
+            background: #e7d7b5;
+            border-radius: 6px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background: #996515;
+            border-radius: 6px;
+            border: 2px solid #e7d7b5;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb:hover {
+            background: #800020;
+        }
+
+        /* Vignette and Border effects */
+        .vintage-border {
+            border: 2px solid #996515;
+            box-shadow: 0 0 0 4px #f4ead5, 0 0 0 6px #996515, 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 15px -2px rgba(61, 49, 36, 0.25), 0 2px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card-shadow:hover {
+            box-shadow: 0 12px 25px -4px rgba(128, 0, 32, 0.3), 0 6px 12px -2px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Golden glow */
+        .glow-gold {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-body min-h-screen selection:bg-imperial-gold selection:text-imperial-crimson overflow-x-hidden">
+
+    <!-- HEADER & NAVBAR -->
+    <header class="bg-parchment-900 text-parchment-100 border-b-4 border-imperial-gold shadow-2xl relative z-20">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <!-- Title Logo -->
+                <div class="flex items-center space-x-3 text-center md:text-left">
+                    <i class="fa-solid me-2 fa-monument text-3xl text-imperial-gold"></i>
+                    <div>
+                        <h1 class="font-cinzel text-2xl sm:text-3xl font-bold tracking-wider text-imperial-gold uppercase drop-shadow">
+                            Annali del Tempo
+                        </h1>
+                        <p class="text-xs font-playfair italic text-parchment-300">
+                            Timeline Storica Interdisciplinare (753 a.C. - 1948 d.C.)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="w-full md:w-80 relative">
+                    <input type="text" id="searchInput" placeholder="Cerca eventi, opere, autori..." 
+                           class="w-full pl-10 pr-4 py-2 bg-parchment-800 border border-imperial-gold/50 rounded-full text-parchment-100 placeholder-parchment-300 focus:outline-none focus:ring-2 focus:ring-imperial-gold focus:border-transparent text-sm">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-imperial-gold text-sm"></i>
+                </div>
+            </div>
+
+            <!-- FILTERS CONTAINER -->
+            <div class="mt-5 pt-4 border-t border-parchment-800 flex flex-col gap-3">
+                <!-- Epoch Filters -->
+                <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                    <span class="font-cinzel font-bold text-imperial-gold mr-1"><i class="fa-solid fa-hourglass-half mr-1"></i> Epoche:</span>
+                    <button class="filter-epoch-btn active px-3 py-1 rounded-full border border-imperial-gold bg-imperial-gold text-parchment-900 font-semibold transition-all" data-epoch="all">Tutte</button>
+                    <button class="filter-epoch-btn px-3 py-1 rounded-full border border-red-800 hover:bg-red-900/50 text-parchment-100 transition-all" data-epoch="antica">Età Antica & Impero</button>
+                    <button class="filter-epoch-btn px-3 py-1 rounded-full border border-amber-800 hover:bg-amber-900/50 text-parchment-100 transition-all" data-epoch="alto-medioevo">Alto Medioevo</button>
+                    <button class="filter-epoch-btn px-3 py-1 rounded-full border border-emerald-800 hover:bg-emerald-900/50 text-parchment-100 transition-all" data-epoch="basso-medioevo">Basso Medioevo</button>
+                    <button class="filter-epoch-btn px-3 py-1 rounded-full border border-purple-800 hover:bg-purple-900/50 text-parchment-100 transition-all" data-epoch="rinascimento">Rinascimento & Mercant./Fisiocr.</button>
+                    <button class="filter-epoch-btn px-3 py-1 rounded-full border border-yellow-700 hover:bg-yellow-900/50 text-parchment-100 transition-all" data-epoch="illuminismo">Illuminismo</button>
+                    <button class="filter-epoch-btn px-3 py-1 rounded-full border border-blue-800 hover:bg-blue-900/50 text-parchment-100 transition-all" data-epoch="risorgimento">Risorgimento & Età Contemp.</button>
+                </div>
+
+                <!-- Subject Filters -->
+                <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                    <span class="font-cinzel font-bold text-imperial-gold mr-1"><i class="fa-solid fa-tags mr-1"></i> Discipline:</span>
+                    <button class="filter-tag-btn active px-2.5 py-0.5 rounded-md bg-parchment-800 text-parchment-200 border border-parchment-300/30 transition-all" data-tag="all">Tutte le Discipline</button>
+                    <button class="filter-tag-btn px-2.5 py-0.5 rounded-md bg-red-950/80 text-red-200 border border-red-700 transition-all" data-tag="Storia"><i class="fa-solid fa-shield-halved mr-1"></i> Storia</button>
+                    <button class="filter-tag-btn px-2.5 py-0.5 rounded-md bg-blue-950/80 text-blue-200 border border-blue-700 transition-all" data-tag="Diritto"><i class="fa-solid fa-scale-balanced mr-1"></i> Diritto & Istituzioni</button>
+                    <button class="filter-tag-btn px-2.5 py-0.5 rounded-md bg-amber-950/80 text-amber-200 border border-amber-700 transition-all" data-tag="Economia"><i class="fa-solid fa-coins mr-1"></i> Economia Politica</button>
+                    <button class="filter-tag-btn px-2.5 py-0.5 rounded-md bg-emerald-950/80 text-emerald-200 border border-emerald-700 transition-all" data-tag="Letteratura"><i class="fa-solid fa-book-bookmark mr-1"></i> Letteratura & Cultura</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT - TIMELINE NAVIGATION & CAROUSEL -->
+    <main class="flex-1 flex flex-col justify-between py-6 relative">
+
+        <!-- Navigation Controls Banner -->
+        <div class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center mb-4">
+            <div class="text-sm font-cinzel text-parchment-800 font-bold tracking-wider">
+                <span id="activeFilterCount" class="text-imperial-crimson">0</span> Eventi visualizzati
+            </div>
+
+            <!-- Scroll Buttons -->
+            <div class="flex space-x-2">
+                <button id="scrollLeft" class="px-4 py-2 bg-parchment-900 hover:bg-imperial-crimson text-imperial-gold border border-imperial-gold rounded-l-lg shadow-md transition-colors flex items-center gap-1 font-cinzel text-xs font-bold">
+                    <i class="fa-solid fa-chevron-left"></i> Passato
+                </button>
+                <button id="scrollRight" class="px-4 py-2 bg-parchment-900 hover:bg-imperial-crimson text-imperial-gold border border-imperial-gold rounded-r-lg shadow-md transition-colors flex items-center gap-1 font-cinzel text-xs font-bold">
+                    Futuro <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- TIMELINE CONTAINER (HORIZONTAL SCROLL) -->
+        <div class="relative w-full my-auto py-8">
+            <!-- Central Line Track -->
+            <div class="absolute top-1/2 left-0 right-0 h-2 bg-gradient-to-r from-amber-950 via-imperial-gold to-amber-950 shadow-md transform -translate-y-1/2 z-0"></div>
+
+            <!-- Scrollable Timeline Items -->
+            <div id="timelineScroll" class="timeline-scroll flex overflow-x-auto space-x-8 px-12 py-12 relative z-10 scroll-smooth items-center">
+                <!-- Events will be rendered dynamically via JS -->
+            </div>
+        </div>
+
+        <!-- Special Highlights Legend / Key Info -->
+        <div class="max-w-7xl mx-auto px-4 w-full mt-4">
+            <div class="bg-parchment-100/90 border border-imperial-bronze/40 rounded-xl p-4 shadow-lg backdrop-blur-sm flex flex-wrap items-center justify-between text-xs text-parchment-800 gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="font-cinzel font-bold text-imperial-crimson"><i class="fa-solid fa-compass mr-1"></i> Focus Economico-Politico:</span>
+                    <span class="bg-purple-900 text-purple-100 px-2 py-0.5 rounded border border-purple-700">Mercantilismo (1500 - 1600)</span>
+                    <span class="bg-amber-900 text-amber-100 px-2 py-0.5 rounded border border-amber-700">Fisiocrazia (1600 - Fine Rinascimento)</span>
+                </div>
+                <div class="text-right italic font-playfair">
+                    Fai click su qualsiasi evento per esplorare i dettagli interdisciplinari.
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- EVENT DETAIL MODAL -->
+    <div id="eventModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-parchment-50 border-4 border-imperial-gold rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto vintage-border p-6 sm:p-8 relative transform scale-95 transition-transform duration-300" id="modalContainer">
+            <!-- Close Button -->
+            <button id="closeModal" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-parchment-900 text-imperial-gold hover:bg-imperial-crimson flex items-center justify-center transition-colors shadow-md">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Modal Header -->
+            <div class="border-b-2 border-imperial-bronze/30 pb-4 mb-4">
+                <div class="flex items-center gap-2 mb-2" id="modalEpochBadge">
+                    <!-- Epoch Badge JS -->
+                </div>
+                <span id="modalYear" class="font-cinzel text-2xl font-bold text-imperial-crimson block"></span>
+                <h2 id="modalTitle" class="font-playfair text-2xl sm:text-3xl font-extrabold text-parchment-900 mt-1"></h2>
+            </div>
+
+            <!-- Tags -->
+            <div id="modalTags" class="flex flex-wrap gap-2 mb-6">
+                <!-- Tags JS -->
+            </div>
+
+            <!-- Content Description -->
+            <div class="space-y-4 text-parchment-900 leading-relaxed font-body text-base sm:text-lg">
+                <p id="modalDescription" class="first-letter:text-4xl first-letter:font-cinzel first-letter:font-bold first-letter:text-imperial-crimson first-letter:mr-1 first-letter:float-left"></p>
+                
+                <div id="modalInterdisciplinary" class="mt-6 bg-parchment-100 border-l-4 border-imperial-gold p-4 rounded-r-lg">
+                    <h4 class="font-cinzel font-bold text-imperial-navy text-sm uppercase mb-2">
+                        <i class="fa-solid fa-diagram-project mr-2"></i>Connessioni Interdisciplinari
+                    </h4>
+                    <ul id="modalConnections" class="space-y-2 text-sm text-parchment-800">
+                        <!-- Connections JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-8 pt-4 border-t border-imperial-bronze/20 flex justify-end">
+                <button id="closeModalBtn" class="px-6 py-2 bg-imperial-gold hover:bg-imperial-bronze text-parchment-900 font-cinzel font-bold rounded-lg transition-colors">
+                    Chiudi Scheda
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-parchment-900 text-parchment-300 py-4 border-t-2 border-imperial-gold text-center text-xs font-cinzel">
+        <div class="max-w-7xl mx-auto px-4">
+            Timeline Storica Interdisciplinare &copy; 753 a.C. - 1948 d.C. | Storia, Diritto, Economia e Letteratura
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // DATASET OF ALL EVENTS PROVIDED BY THE USER
+        const timelineEvents = [
+            // ETÀ ANTICA E IMPERO ROMANO (753 a.C. - 476 d.C.)
+            {
+                id: 1,
+                year: "753 a.C.",
+                yearNum: -753,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Fondazione di Roma (Monarchia)",
+                tags: ["Storia", "Diritto", "Letteratura"],
+                summary: "Nascita della città di Roma e inizio dell'era Monarchica. Fioritura dei grandi miti di fondazione.",
+                details: "La tradizione fissa al 21 aprile 753 a.C. la fondazione di Roma da parte di Romolo. La forma istituzionale iniziale è la Monarchia. Questo periodo getta le basi culturali e mitiche celebrati successivamente dai grandi poeti latini.",
+                connections: [
+                    { tag: "Storia", text: "Inizio dell'epopea romana con Romolo come primo re." },
+                    { tag: "Diritto", text: "Nascita delle primissime istituzioni comunitarie e religiose (rex, senato regio)." },
+                    { tag: "Letteratura", text: "Virgilio (Eneide) celebrerà le origini mitiche di Roma tramite Enea; Orazio (Odi) e Ovidio (Metamorfosi) immortaleranno l'immaginario classico." }
+                ]
+            },
+            {
+                id: 2,
+                year: "509 a.C.",
+                yearNum: -509,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Nascita della Repubblica Romana",
+                tags: ["Storia", "Diritto"],
+                summary: "Cacciata dell'ultimo re Tarquinio il Superbo e istituzione della Libertas repubblicana.",
+                details: "Con la cacciata di Tarquinio il Superbo viene abolita la monarchia. Il potere politico viene affidato a due consoli eletti annualmente, affiancati dal Senato e dai Comizi.",
+                connections: [
+                    { tag: "Storia", text: "Transizione fondamentale dal potere unico regio alla divisione delle magistrature." },
+                    { tag: "Diritto", text: "Origine del Diritto Pubblico Romano, fondato sulla collegialità, temporaneità delle cariche e provocatio ad populum." }
+                ]
+            },
+            {
+                id: 3,
+                year: "500 a.C.",
+                yearNum: -500,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Guerre Persiane e Vittoria Greca",
+                tags: ["Storia"],
+                summary: "I poleis greche respingono le invasioni dell'Impero Persiano, salvaguardando l'indipendenza occidentale.",
+                details: "Epico conflitto tra le città-stato greche (Atene, Sparta) e il vasto Impero Persiano. Le battaglie di Maratona, Salamina e Platea segnano la vittoria greca.",
+                connections: [
+                    { tag: "Storia", text: "La vittoria assicura la sopravvivenza della cultura elenica e il modello democratico ateniese." }
+                ]
+            },
+            {
+                id: 4,
+                year: "300 a.C.",
+                yearNum: -300,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Magna Grecia, Ellenismo & Cultura Classica",
+                tags: ["Storia", "Diritto", "Economia", "Letteratura"],
+                summary: "Massimo sviluppo della Magna Grecia, diffusione dell'ellenismo, filosofia, scienze, teatro ed Olimpiadi.",
+                details: "Fioritura delle colonie greche nell'Italia meridionale (Magna Grecia). Diffusione della cultura ellenistica con progressi straordinari in filosofia (Platone, Aristotele), scienze, teatro e istituzioni democratiche.",
+                connections: [
+                    { tag: "Economia", text: "Fiorenti rotte commerciali nel Mediterraneo e sviluppo dei sistemi monetari e mercati urbani." },
+                    { tag: "Diritto", text: "Evoluzione delle forme di democrazia e partecipazione alla polis." },
+                    { tag: "Letteratura", text: "Tragedia e commedia greca, oratoria e nascita del pensiero filosofico occidentale." }
+                ]
+            },
+            {
+                id: 5,
+                year: "200 a.C.",
+                yearNum: -200,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Scipione l'Africano & Espansione Mediterranea",
+                tags: ["Storia", "Economia"],
+                summary: "Vittoria nelle Guerre Puniche e affermazione di Roma come potenza egemone sul Mediterraneo.",
+                details: "Publio Cornelio Scipione (l'Africano) sconfigge Annibale a Zama (202 a.C.). Roma estende il proprio dominio incontestato su tutto il bacino del Mediterraneo (Mare Nostrum).",
+                connections: [
+                    { tag: "Storia", text: "Definitivo abbattimento della potenza cartaginese." },
+                    { tag: "Economia", text: "Enorme afflusso di ricchezze, schiavi e province tributarie che trasformano l'economia agraria romana in economia latifondista." }
+                ]
+            },
+            {
+                id: 6,
+                year: "44 a.C.",
+                yearNum: -44,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Morte di Giulio Cesare",
+                tags: ["Storia", "Diritto"],
+                summary: "Assassinio di Cesare alle Idi di Marzo; fine della Repubblica Romana.",
+                details: "Giulio Cesare viene assassinato da una congiura di senatori guidata da Bruto e Cassio. Il tentativo di restaurare la vecchia repubblica scatenerà nuove guerre civili.",
+                connections: [
+                    { tag: "Storia", text: "Punto di svolta decisivo che conduce al tramonto definitivo della Repubblica." },
+                    { tag: "Diritto", text: "Crisi dell'ordinamento repubblicano e passaggio verso la concentrazione dei poteri autocratici." }
+                ]
+            },
+            {
+                id: 7,
+                year: "27 a.C.",
+                yearNum: -27,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Nascita dell'Impero Romano con Augusto",
+                tags: ["Storia", "Diritto", "Letteratura"],
+                summary: "Ottaviano riceve il titolo di Augusto: inizia il Principato e la Pax Romana.",
+                details: "Ottaviano accentra le cariche fondamentali mantenendo formalmente le strutture repubblicane. Inizia l'Età Augustea, caratterizzata da pace interna e fioritura culturale.",
+                connections: [
+                    { tag: "Diritto", text: "Inizio del Principato: il Princeps è al vertice del sistema normativo ed esecutivo." },
+                    { tag: "Letteratura", text: "Età d'oro della letteratura latina: Virgilio scrive l'Eneide, Orazio compone le Odi, Ovidio scrive le Metamorfosi." }
+                ]
+            },
+            {
+                id: 8,
+                year: "70 d.C.",
+                yearNum: 70,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Distruzione di Gerusalemme",
+                tags: ["Storia"],
+                summary: "Tito assedia e distrugge il Secondo Tempio di Gerusalemme.",
+                details: "Le legioni romane guidate da Tito domano la prima guerra giudaica saccheggiando e distruggendo il Tempio di Gerusalemme, dando inizio alla grande diaspora ebraica.",
+                connections: [
+                    { tag: "Storia", text: "Evento cruciale per la storia del Vicino Oriente e per la diaspora del popolo ebraico." }
+                ]
+            },
+            {
+                id: 9,
+                year: "313 d.C.",
+                yearNum: 313,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Editto di Milano (Costantino)",
+                tags: ["Storia", "Diritto"],
+                summary: "Concessione della libertà di culto ai cristiani in tutto l'Impero Romano.",
+                details: "Gli imperatori Costantino e Licinio promulgano l'Editto di Milano, ponendo fine alle persecuzioni anti-cristiane e stabilendo la neutralità religiosa dello Stato.",
+                connections: [
+                    { tag: "Diritto", text: "Primo storico riconoscimento normativo della libertà religiosa e di coscienza." },
+                    { tag: "Storia", text: "Tappa fondamentale per la cristianizzazione dell'Impero e del continente europeo." }
+                ]
+            },
+            {
+                id: 10,
+                year: "476 d.C.",
+                yearNum: 476,
+                epoch: "antica",
+                epochName: "Età Antica & Impero Romano",
+                title: "Caduta dell'Impero Romano d'Occidente",
+                tags: ["Storia", "Diritto"],
+                summary: "Odoacre depone Romolo Augusto; fine dell'Età Antica e invasioni barbariche.",
+                details: "Il capo barbaro Odoacre depone l'ultimo imperatore d'Occidente, Romolo Augusto. L'Europa entra in una fase di invasioni barbariche (Goti, Ostrogoti, Visigoti) segnando la fine del mondo antico.",
+                connections: [
+                    { tag: "Storia", text: "Passaggio simbolico e storiografico dall'Età Antica al Medioevo." },
+                    { tag: "Diritto", text: "Frammentazione dell'unità giuridica romana e nascita dei regni romano-barbarici." }
+                ]
+            },
+
+            // ALTO MEDIOEVO (476 d.C. - 1000)
+            {
+                id: 11,
+                year: "622 d.C.",
+                yearNum: 622,
+                epoch: "alto-medioevo",
+                epochName: "Alto Medioevo",
+                title: "Nascita dell'Islam (L'Egira di Maometto)",
+                tags: ["Storia"],
+                summary: "Fuga di Maometto da La Mecca a Medina; inizio del calendario islamico.",
+                details: "L'Egira del profeta Maometto segna la nascita della comunità islamica (Umma) ed è il punto di partenza della straordinaria espansione araba nel Mediterraneo.",
+                connections: [
+                    { tag: "Storia", text: "Sorgere di un nuovo gigante politico, culturale e religioso nel Mediterraneo." }
+                ]
+            },
+            {
+                id: 12,
+                year: "700 d.C.",
+                yearNum: 700,
+                epoch: "alto-medioevo",
+                epochName: "Alto Medioevo",
+                title: "Califfato in Spagna e Sicilia",
+                tags: ["Storia", "Economia", "Letteratura"],
+                summary: "Fioritura della civiltà arabo-islamica nella penisola iberica (Al-Andalus) e in Sicilia.",
+                details: "L'espansione araba porta alla creazione di un fiorente dominio culturale ed economico in Spagna e poi in Sicilia, ponte di conoscenza e scoperte scientifiche verso l'Europa.",
+                connections: [
+                    { tag: "Economia", text: "Introduzione di nuove tecniche agricole (irrigazione), colture (agrumi, canna da zucchero) e scambi internazionali." },
+                    { tag: "Letteratura", text: "Traduzione dei testi filosofici e scientifici greci (Aristotele) conservati e arricchiti dagli studiosi arabi." }
+                ]
+            },
+            {
+                id: 13,
+                year: "800 d.C.",
+                yearNum: 800,
+                epoch: "alto-medioevo",
+                epochName: "Alto Medioevo",
+                title: "Sacro Romano Impero & Carlo Magno",
+                tags: ["Storia", "Diritto"],
+                summary: "Incoronazione di Carlo Magno a Roma la notte di Natale da parte di Papa Leone III.",
+                details: "Rinasce un impero in Occidente a trazione carolingia. Si sviluppa il sistema feudale, caratterizzato da rapporti di vassallaggio, benefici e fidelitas.",
+                connections: [
+                    { tag: "Storia", text: "Unificazione di gran parte dell'Europa occidentale sotto la corona di Carlo Magno." },
+                    { tag: "Diritto", text: "Nascita delle consuetudini feudali e Capitolari imperiali." }
+                ]
+            },
+            {
+                id: 14,
+                year: "IX - X Secolo",
+                yearNum: 900,
+                epoch: "alto-medioevo",
+                epochName: "Alto Medioevo",
+                title: "Seconda Invasione Barbarica",
+                tags: ["Storia"],
+                summary: "Incursioni e invasioni di Ungari, Saraceni e Normanni in Europa.",
+                details: "L'Europa è scossa da nuove ed ondative invasioni: gli Ungari da est, i Saraceni lungo le coste mediterranee e i Normanni dal nord, portando all'incastellamento difensivo.",
+                connections: [
+                    { tag: "Storia", text: "Decentramento del potere e nascita dei castelli per la difesa delle popolazioni locali." }
+                ]
+            },
+            {
+                id: 15,
+                year: "Anno 1000",
+                yearNum: 1000,
+                epoch: "alto-medioevo",
+                epochName: "Alto Medioevo",
+                title: "Nascita dei Comuni e delle Signorie",
+                tags: ["Storia", "Diritto", "Economia"],
+                summary: "Rinascita urbana, sviluppo dell'autonomia cittadina e superamento del feudalesimo.",
+                details: "Attorno all'anno Mille si assiste alla rinascita demografica ed economica dell'Europa. Nelle città italiane ed europee nascono i Comuni liberi, poi evoluti in Signorie.",
+                connections: [
+                    { tag: "Economia", text: "Rinascita dei mercati, della moneta e della figura del mercante." },
+                    { tag: "Diritto", text: "Redazione degli Statuti Comunali e prima autonomia normativa locale." }
+                ]
+            },
+
+            // BASSO MEDIOEVO (1000 - 1500)
+            {
+                id: 16,
+                year: "1300",
+                yearNum: 1300,
+                epoch: "basso-medioevo",
+                epochName: "Basso Medioevo",
+                title: "Le Tre Corone Italiane",
+                tags: ["Letteratura", "Storia"],
+                summary: "Fioritura della letteratura volgare con Dante Alighieri, Francesco Petrarca e Giovanni Boccaccio.",
+                details: "Nel Trecento si afferma la grandezza della lingua italiana volgare florentina grazie ai capolavori immortali delle Tre Corone.",
+                connections: [
+                    { tag: "Letteratura", text: "Dante Alighieri (Divina Commedia, Vita Nova), Francesco Petrarca (Canzoniere) e Giovanni Boccaccio (Decameron)." },
+                    { tag: "Storia", text: "Affresco straordinario della società medievale, della crisi politica tra Papato ed Impero e della peste del 1348." }
+                ]
+            },
+            {
+                id: 17,
+                year: "1453",
+                yearNum: 1453,
+                epoch: "basso-medioevo",
+                epochName: "Basso Medioevo",
+                title: "Caduta di Costantinopoli",
+                tags: ["Storia"],
+                summary: "Maometto II conquista Costantinopoli: fine dell'Impero Romano d'Oriente (Bizantino).",
+                details: "L'Impero Ottomano espugna Costantinopoli. Cade l'ultimo baluardo dell'Impero Romano d'Oriente, provocando la fuga di dotti bizantini in Italia e stimolando l'Umanesimo.",
+                connections: [
+                    { tag: "Storia", text: "Chiusura delle tradizionali rotte commerciali terrestri verso la Seta e l'India." }
+                ]
+            },
+            {
+                id: 18,
+                year: "1492",
+                yearNum: 1492,
+                epoch: "basso-medioevo",
+                epochName: "Basso Medioevo",
+                title: "Scoperta dell'America",
+                tags: ["Storia", "Economia"],
+                summary: "Cristoforo Colombo approda nel Nuovo Mondo; inizio dell'Età Moderna.",
+                details: "La spedizione finanziata dai Re Cattolici di Spagna porta alla scoperta del Continente Americano, spostando l'asse economico mondiale dal Mediterraneo all'Atlantico.",
+                connections: [
+                    { tag: "Economia", text: "Globalizzazione dei mercati, afflusso masivo di metalli preziosi (oro e argento) e rivoluzione dei prezzi." }
+                ]
+            },
+            {
+                id: 19,
+                year: "1500",
+                yearNum: 1500,
+                epoch: "basso-medioevo",
+                epochName: "Basso Medioevo",
+                title: "Repubbliche Marinare & Stati Nazionali",
+                tags: ["Storia", "Diritto", "Economia"],
+                summary: "Egemoni repubblicane (Amalfi, Genova, Venezia, Pisa) e consolidamento monarchico europeo.",
+                details: "Le Repubbliche Marinare italiane dominano i traffici marittimi. Parallelamente in Europa si consolidano i primi grandi Stati Nazionali e Monarchie (Portogallo, Spagna, Inghilterra, Francia).",
+                connections: [
+                    { tag: "Economia", text: "Tecniche bancarie d'avanguardia (partita doppia, lettere di cambio) inventate dai mercanti italiani." },
+                    { tag: "Diritto", text: "Centralizzazione del potere monarchico e superamento della frammentazione feudale." }
+                ]
+            },
+
+            // RINASCIMENTO (1000 - 1689) con Mercantilismo e Fisiocrazia
+            {
+                id: 20,
+                year: "1500-1600",
+                yearNum: 1505,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Periodo del Mercantilismo",
+                tags: ["Economia", "Diritto"],
+                summary: "Dottrina economica fondata sul protezionismo e sull'accumulo di metalli preziosi dallo Stato.",
+                details: "In piena Età Moderna e Rinascimento, il Mercantilismo (o Colbertismo) sostiene che la ricchezza di una nazione dipenda dalla bilancia commerciale attiva (esportazioni > importazioni) e dall'intervento diretto dello Stato Reale nell'economia.",
+                connections: [
+                    { tag: "Economia", text: "Protezionismo doganale, monopoli statali e compagnie delle indie." },
+                    { tag: "Diritto", text: "Nascita delle prime regolamentazioni statali centralizzate su commerci e manifatture." }
+                ]
+            },
+            {
+                id: 21,
+                year: "1517",
+                yearNum: 1517,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Riforma Protestante (95 Tesi di Lutero)",
+                tags: ["Storia", "Diritto"],
+                summary: "Martin Lutero affigge le 95 tesi a Wittenberg; spaccatura della Cristianità.",
+                details: "La protesta luterana contro la vendita delle indulgenze scatena la Riforma Protestante, che romperà l'unità religiosa europea provocando profonde guerre di religione.",
+                connections: [
+                    { tag: "Storia", text: "Inizio delle guerre di religione e ridefinizione della mappa geopolitica europea." },
+                    { tag: "Diritto", text: "Affermazione dell'autonomia dei principi territoriali rispetto alla Chiesa romana." }
+                ]
+            },
+            {
+                id: 22,
+                year: "1527",
+                yearNum: 1527,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Sacco di Roma",
+                tags: ["Storia"],
+                summary: "I Lanzichenecchi di Carlo V saccheggiano la capitale papale.",
+                details: "Le truppe mercenarie di Carlo V invadono e devastano Roma. L'evento dimostra la vulnerabilità degli stati italiani nelle Guerre d'Italia.",
+                connections: [
+                    { tag: "Storia", text: "Simbolo della fine della splendida stagione del pieno Rinascimento politico italiano." }
+                ]
+            },
+            {
+                id: 23,
+                year: "1529",
+                yearNum: 1529,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Primo Assedio di Vienna",
+                tags: ["Storia"],
+                summary: "L'Impero Ottomano di Solimano il Magnifico assedia Vienna per la prima volta.",
+                details: "L'avanzata turca nei Balcani giunge al cuore dell'Europa cristiana. Le difese asburgiche riescono a respingere gli assedianti.",
+                connections: [
+                    { tag: "Storia", text: "Punto massimo dell'espansione ottomana verso l'Europa Centrale." }
+                ]
+            },
+            {
+                id: 24,
+                year: "1571",
+                yearNum: 1571,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Battaglia di Lepanto",
+                tags: ["Storia"],
+                summary: "La Lega Santa sconfigge la flotta ottomana nel Mediterraneo.",
+                details: "Clamorosa vittoria navale della coalizione cristiana (Spagna, Venezia, Stato Pontificio) contro l'Impero Ottomano al largo di Lepanto.",
+                connections: [
+                    { tag: "Storia", text: "Arresto dell'egemonia marittima turca nel Mediterraneo occidentale." }
+                ]
+            },
+            {
+                id: 25,
+                year: "1578",
+                yearNum: 1578,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Torquato Tasso & 'Gerusalemme Liberata'",
+                tags: ["Letteratura"],
+                summary: "Capolavoro epico del tardo Rinascimento e dell'età della Controriforma.",
+                details: "Torquato Tasso completa la 'Gerusalemme liberata', poemetto in ottave incentrato sulla prima crociata, lacerato tra l'eroismo epico e il tormento religioso controriformistico.",
+                connections: [
+                    { tag: "Letteratura", text: "Vetta del poema cavalleresco e culmine dell'estetica tardo-rinascimentale." }
+                ]
+            },
+            {
+                id: 26,
+                year: "1600",
+                yearNum: 1600,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Assolutismo Monarchico ('Rex Absolutus')",
+                tags: ["Diritto", "Storia"],
+                summary: "Il sovrano è sciolto dalle leggi umane (legibus solutus); apice nella Francia di Luigi XIV.",
+                details: "Si afferma la dottrina dell'Assolutismo: il re deriva il proprio potere direttamente da Dio ed è la fonte suprema di ogni legge e autorità (L'État, c'est moi).",
+                connections: [
+                    { tag: "Diritto", text: "Monopolio assoluto della produzione legislativa nelle mani della Corona." }
+                ]
+            },
+            {
+                id: 27,
+                year: "1600 - End Rinasc.",
+                yearNum: 1630,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Periodo della Fisiocrazia",
+                tags: ["Economia"],
+                summary: "Dottrina economica (Quesnay) che individua nell'agricoltura l'unica vera fonte di ricchezza.",
+                details: "In contrapposizione al Mercantilismo, la Fisiocrazia sostiene che solo la terra ed l'agricoltura producano un sovrappiù netto. Promuove il libero scambio ('Laissez faire, laissez passer').",
+                connections: [
+                    { tag: "Economia", text: "Anticipazione del liberismo moderno e critica al protezionismo statale." }
+                ]
+            },
+            {
+                id: 28,
+                year: "1679",
+                yearNum: 1679,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Inghilterra: Legge dell'Habeas Corpus",
+                tags: ["Diritto", "Storia"],
+                summary: "Pietra miliare del diritto moderno a tutela della libertà personale contro gli arresti arbitrari.",
+                details: "Il Parlamento inglese approva l'Habeas Corpus Act: ogni cittadino arrestato ha il diritto fondamentale di conoscere i motivi della detenzione e di essere giudicato tempestivamente da un tribunale.",
+                connections: [
+                    { tag: "Diritto", text: "Nascita delle garanzie giurisdizionali e della tutela dei diritti umani fondamentali." }
+                ]
+            },
+            {
+                id: 29,
+                year: "1683",
+                yearNum: 1683,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Seconda Battaglia di Vienna",
+                tags: ["Storia"],
+                summary: "La coalizione cristiana sconfigge definitivamente l'assedio ottomano a Vienna.",
+                details: "La carica della cavalleria polacca guidata da Giovanni III Sobieski rompe il secondo assedio turco di Vienna, segnando il declino definitivo dell'Impero Ottomano in Europa.",
+                connections: [
+                    { tag: "Storia", text: "Inizio della riconquista asburgica dei Balcani." }
+                ]
+            },
+            {
+                id: 30,
+                year: "1688 - 1689",
+                yearNum: 1689,
+                epoch: "rinascimento",
+                epochName: "Rinascimento",
+                title: "Gloriosa Rivoluzione & Monarchia Costituzionale",
+                tags: ["Diritto", "Storia", "Economia"],
+                summary: "Approvazione del Bill of Rights in Inghilterra e nascita del parlamentarismo liberale.",
+                details: "Senza spargimento di sangue, Guglielmo d'Orange diventa re firmando il Bill of Rights (1689). Nasce la Monarchia Costituzionale e Liberale che limita per sempre i poteri della corona.",
+                connections: [
+                    { tag: "Diritto", text: "Separazione dei poteri e primato della legge del Parlamento." },
+                    { tag: "Economia", text: "Stabilità politica che porrà le basi economiche per la futura Rivoluzione Industriale." }
+                ]
+            },
+
+            // ILLUMINISMO (1700 - 1800)
+            {
+                id: 31,
+                year: "1700",
+                yearNum: 1700,
+                epoch: "illuminismo",
+                epochName: "Illuminismo",
+                title: "Prima Rivoluzione Industriale & Innovazioni",
+                tags: ["Economia", "Storia"],
+                summary: "Macchina a vapore di James Watt e invenzione della pila di Alessandro Volta.",
+                details: "Meccanizzazione della produzione in Inghilterra con la macchina a vapore (Watt). In Italia, Alessandro Volta inventa la pila elettrica, inaugurando l'era dell'energia.",
+                connections: [
+                    { tag: "Economia", text: "Nascita del sistema di fabbrica, del capitalismo industriale e delle classi operaie." }
+                ]
+            },
+            {
+                id: 32,
+                year: "1764",
+                yearNum: 1764,
+                epoch: "illuminismo",
+                epochName: "Illuminismo",
+                title: "Cesare Beccaria: 'Dei delitti e delle pene'",
+                tags: ["Diritto", "Letteratura"],
+                summary: "Opera illuminista che teorizza l'abolizione della tortura e della pena di morte.",
+                details: "Cesare Beccaria pubblica a Livorno il trattato capolavoro del diritto moderno, sostenendo che le pene debbano servire da prevenzione e rieducazione, rifiutando la crudeltà della pena capitale.",
+                connections: [
+                    { tag: "Diritto", text: "Fondamento del diritto penale moderno e del garantismo giuridico." },
+                    { tag: "Letteratura", text: "Vetta del saggismo illuminista italiano ed milanese (Caffè dei fratelli Verri)." }
+                ]
+            },
+            {
+                id: 33,
+                year: "1776",
+                yearNum: 1776,
+                epoch: "illuminismo",
+                epochName: "Illuminismo",
+                title: "Rivoluzione Americana & Indipendenza USA",
+                tags: ["Storia", "Diritto"],
+                summary: "Dichiarazione d'Indipendenza delle 13 colonie americane dalla Gran Bretagna (4 Luglio).",
+                details: "Le colonie americane proclamano l'indipendenza sancendo i diritti inalienabili dell'uomo (vita, libertà, ricerca della felicità).",
+                connections: [
+                    { tag: "Diritto", text: "Nascita del costituzionalismo moderno e della prima repubblica federale presidenziale." }
+                ]
+            },
+            {
+                id: 34,
+                year: "1789",
+                yearNum: 1789,
+                epoch: "illuminismo",
+                epochName: "Illuminismo",
+                title: "Rivoluzione Francese",
+                tags: ["Storia", "Diritto"],
+                summary: "Presa della Bastiglia e proclama dei valori: Liberté, Égalité, Fraternité.",
+                details: "Crollo dell'Ancien Régime in Francia. La Dichiarazione dei Diritti dell'Uomo e del Cittadino abbatte la società di privilegio feudale.",
+                connections: [
+                    { tag: "Diritto", text: "Uguaglianza giuridica di tutti i cittadini di fronte alla legge." }
+                ]
+            },
+            {
+                id: 35,
+                year: "1797 (7 Gen)",
+                yearNum: 1797,
+                epoch: "illuminismo",
+                epochName: "Illuminismo",
+                title: "Nascita del Tricolore Italiano",
+                tags: ["Storia"],
+                summary: "Adottata a Reggio Emilia la bandiera verde, bianca e rossa della Repubblica Cispadana.",
+                details: "Il 7 gennaio 1797 a Reggio Emilia, il Congresso della Repubblica Cispadana proclama il Tricolore come vessillo sovrano nazionale.",
+                connections: [
+                    { tag: "Storia", text: "Primo grande simbolo unitario del futuro Risorgimento italiano." }
+                ]
+            },
+            {
+                id: 36,
+                year: "1798 - 1807",
+                yearNum: 1800,
+                epoch: "illuminismo",
+                epochName: "Illuminismo",
+                title: "Ugo Foscolo: 'Ortis' e 'I Sepolcri'",
+                tags: ["Letteratura"],
+                summary: "Pubblicazione de 'Ultime lettere di Jacopo Ortis' (1798) e 'Dei Sepolcri' (1807).",
+                details: "Ugo Foscolo incarna la transizione tra Illuminismo e Preromanticismo. L'Ortis esprime la delusione patriottica post-Campoformio; I Sepolcri celebrano l'immortalità dell'eredità morale e civile attraverso il ricordo e la poesia.",
+                connections: [
+                    { tag: "Letteratura", text: "Vetta della poesia civile e preromantica italiana." }
+                ]
+            },
+
+            // RISORGIMENTO ED ETÀ CONTEMPORANEA (1800 - 1948)
+            {
+                id: 37,
+                year: "1820 - 1821",
+                yearNum: 1820,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Moti Insurrezionali & Carboneria",
+                tags: ["Storia", "Diritto"],
+                summary: "Prime rivolte costituzionali in Italia; attivismo di Giuseppe Mazzini ('O dei civili').",
+                details: "Scoppiano i primi moti promossi dalle società segrete (Carboneria) nel Regno delle Due Sicilie e in Piemonte per ottenere la Costituzione.",
+                connections: [
+                    { tag: "Storia", text: "Inizio del processo politico risorgimentale per la liberazione e unità d'Italia." }
+                ]
+            },
+            {
+                id: 38,
+                year: "1827",
+                yearNum: 1827,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Manzoni: Prima Edizione de 'I Promessi Sposi'",
+                tags: ["Letteratura"],
+                summary: "Alessandro Manzoni pubblica l'edizione 'Ventisettana' del romanzo storico per eccellenza.",
+                details: "Manzoni fonda il romanzo moderno italiano e contribuisce all'unificazione linguistica e morale del paese attraverso il racconto delle sventure di Renzo e Lucia sotto il dominio spagnolo.",
+                connections: [
+                    { tag: "Letteratura", text: "Modello insuperato della prosa narrativa d'impegno civile e morale." }
+                ]
+            },
+            {
+                id: 39,
+                year: "1831",
+                yearNum: 1831,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Mazzini fonda la 'Giovine Italia'",
+                tags: ["Storia", "Diritto"],
+                summary: "Nuova ondata di moti; programma mazziniano per un'Italia Una, Libera, Indipendente e Repubblicana.",
+                details: "Giuseppe Mazzini supera la segretezza elitaria della Carboneria proponendo un'associazione democratica a programma pubblico e popolare.",
+                connections: [
+                    { tag: "Storia", text: "Ideale democratico e repubblicano del Risorgimento." }
+                ]
+            },
+            {
+                id: 40,
+                year: "1847",
+                yearNum: 1847,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Goffredo Mameli compone l'Inno di Mameli",
+                tags: ["Letteratura", "Storia"],
+                summary: "Scrittura de 'Il Canto degli Italiani', futuro Inno Nazionale della Repubblica.",
+                details: "Il giovane patriota Goffredo Mameli scrive i versi de 'Il Canto degli Italiani' (musicato da Michele Novaro), infiammando gli animi patriottici nel Quarantotto.",
+                connections: [
+                    { tag: "Letteratura", text: "Poesia patriottica risorgimentale." }
+                ]
+            },
+            {
+                id: 41,
+                year: "1848",
+                yearNum: 1848,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "I Prima Guerra d'Indipendenza & Statuto Albertino",
+                tags: ["Storia", "Diritto"],
+                summary: "Cinque Giornate di Milano, rivolta di Manin a Venezia, concessione dello Statuto Albertino.",
+                details: "Anno della 'Primavera dei Popoli'. Carlo Alberto concede lo Statuto Albertino ed entra in guerra contro l'Austria (I Guerra d'Indipendenza, conclusa con la sconfitta sabauda). Insurrezione a Milano ed a Venezia.",
+                connections: [
+                    { tag: "Diritto", text: "Lo Statuto Albertino diviene la carta costituzionale del Regno di Sardegna e poi d'Italia fino al 1948." }
+                ]
+            },
+            {
+                id: 42,
+                year: "1849",
+                yearNum: 1849,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Proclamazione della Repubblica Romana",
+                tags: ["Diritto", "Storia"],
+                summary: "Esperienza democratica guidata dal Triumvirato Mazzini-Armellini-Saffi.",
+                details: "Fuga del Papa a Gaeta e nascita della Repubblica Romana con la costituzione più democratica ed avanzata dell'epoca, difesa fino all'estremo da Garibaldi e Mameli.",
+                connections: [
+                    { tag: "Diritto", text: "Costituzione pioniera del suffragio universale e della laicità dello Stato." }
+                ]
+            },
+            {
+                id: 43,
+                year: "1859",
+                yearNum: 1859,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "II Guerra d'Indipendenza & Annessione Lombardia",
+                tags: ["Storia"],
+                summary: "Alleanza franco-piemontese (Vittorio Emanuele II, Cavour, Napoleone III) e vittorie risorgimentali.",
+                details: "Grazie alle vittorie di Solferino e San Martino ed all'alleanza con la Francia, la Lombardia viene liberata dal dominio austriaco e annessa al Piemonte.",
+                connections: [
+                    { tag: "Storia", text: "Tappa fondamentale e decisiva per la liberazione del nord Italia." }
+                ]
+            },
+            {
+                id: 44,
+                year: "1860",
+                yearNum: 1860,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Spedizione dei Mille di Garibaldi",
+                tags: ["Storia"],
+                summary: "Giuseppe Garibaldi salpa da Quarto e libera il Mezzogiorno borbonico.",
+                details: "I Mille di Garibaldi conquistano la Sicilia e risalgono il Regno delle Due Sicilie, incontrando Vittorio Emanuele II a Teano per consegnargli il Sud Italia.",
+                connections: [
+                    { tag: "Storia", text: "Unificazione materiale e popolare dell'Italia centro-meridionale." }
+                ]
+            },
+            {
+                id: 45,
+                year: "1861 (17 Mar)",
+                yearNum: 1861,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Unità d'Italia & Regno d'Italia",
+                tags: ["Storia", "Diritto"],
+                summary: "Proclamazione di Vittorio Emanuele II Re d'Italia (Monarchia Costituzionale).",
+                details: "Il Primo Parlamento Nazionale proclama la nascita del Regno d'Italia con capitale Torino. L'ordinamento è una monarchia costituzionale regolata dallo Statuto Albertino.",
+                connections: [
+                    { tag: "Diritto", text: "Piemontesizzazione del diritto e nascita del Regno d'Italia unitario." }
+                ]
+            },
+            {
+                id: 46,
+                year: "1866",
+                yearNum: 1866,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Terza Guerra d'Indipendenza & Annessione del Veneto",
+                tags: ["Storia"],
+                summary: "Alleanza italo-prussiana contro l'Austria ed annessione delle terre venete.",
+                details: "L'Italia partecipa al conflitto contro l'Austria a fianco della Prussia. Nonostante le sconfitte di Custoza e Lissa, il Veneto entra a far parte dell'Italia.",
+                connections: [
+                    { tag: "Storia", text: "Completamento dell'unità nel nord-est." }
+                ]
+            },
+            {
+                id: 47,
+                year: "1868",
+                yearNum: 1868,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Carducci: Poesia dell'Italia Unita",
+                tags: ["Letteratura"],
+                summary: "Giosuè Carducci canta i valori repubblicani e l'epos dell'Italia Unita.",
+                details: "Carducci celebra con stile classico e veemente passione civile i martiri ed i valori risorgimentali, assumendo il ruolo di poeta vate della nuova nazione.",
+                connections: [
+                    { tag: "Letteratura", text: "Primo Premio Nobel per la Letteratura italiano (1906)." }
+                ]
+            },
+            {
+                id: 48,
+                year: "1870 (20 Set)",
+                yearNum: 1870,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Breccia di Porta Pia & Fine dello Stato Pontificio",
+                tags: ["Storia", "Diritto"],
+                summary: "I bersaglieri entrano a Roma; fine del potere temporale dei Papi.",
+                details: "Le truppe italiane entrano a Roma ponendo fine dopo oltre un millennio allo Stato della Chiesa. Si apre la 'Questione Romana' regolata poi dalla legge delle Guarentigie.",
+                connections: [
+                    { tag: "Diritto", text: "Fine del potere temporale del Papa." }
+                ]
+            },
+            {
+                id: 49,
+                year: "1871",
+                yearNum: 1871,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Roma Capitale d'Italia",
+                tags: ["Storia", "Diritto"],
+                summary: "Trasferimento ufficiale della capitale da Firenze a Roma.",
+                details: "Roma viene solennemente proclamata Capitale del Regno d'Italia, realizzando il sogno di Cavour e dei patrioti risorgimentali.",
+                connections: [
+                    { tag: "Storia", text: "Completamento del disegno capitale d'Italia." }
+                ]
+            },
+            {
+                id: 50,
+                year: "1889",
+                yearNum: 1889,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "D'Annunzio pubblica 'Il Piacere'",
+                tags: ["Letteratura"],
+                summary: "Inizio del Decadentismo ed Estetismo italiano con Andrea Sperelli.",
+                details: "Gabriele D'Annunzio pubblica 'Il Piacere', inaugurando la stagione del Decadentismo e dell'Estetismo in Italia ('fare della propria vita un'opera d'arte').",
+                connections: [
+                    { tag: "Letteratura", text: "Manifesto dell'Estetismo e del romanzo decadente." }
+                ]
+            },
+            {
+                id: 51,
+                year: "1891",
+                yearNum: 1891,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Pascoli pubblica 'Myricae'",
+                tags: ["Letteratura"],
+                summary: "Raccolta poetica del Decadentismo incentrata sulle piccole cose ed il simbolismo.",
+                details: "Giovanni Pascoli rivoluziona il linguaggio poetico italiano con 'Myricae', introducendo il simbolismo, la poetica del fanciullino ed analogie foniche.",
+                connections: [
+                    { tag: "Letteratura", text: "Rinnovamento lirico e simbolista nella letteratura." }
+                ]
+            },
+            {
+                id: 52,
+                year: "1900",
+                yearNum: 1900,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Inizio dell'Età Giolittiana",
+                tags: ["Storia", "Economia", "Diritto"],
+                summary: "Periodo di decollo industriale, riforme sociali ed equilibrio politico guidato da Giovanni Giolitti.",
+                details: "Stagione di grande modernizzazione economica e sociale. Lo Stato assume un ruolo di neutralità nei conflitti di lavoro, promuovendo prime leggi di tutela dei lavoratori.",
+                connections: [
+                    { tag: "Economia", text: "Decollo industriale del triangolo Milano-Torino-Genova." },
+                    { tag: "Diritto", text: "Evoluzione delle riforme sociali e previdenziali." }
+                ]
+            },
+            {
+                id: 53,
+                year: "1915 - 1918",
+                yearNum: 1915,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Prima Guerra Mondiale & Terre Interredente",
+                tags: ["Storia"],
+                summary: "L'Italia partecipa al primo conflitto mondiale; annessione di Trentino, Alto Adige, Trieste e Friuli.",
+                details: "L'Italia entra in guerra nel 1915 a fianco dell'Intesa. Con la vittoria finale si completa il riscatto delle terre irredente (Trentino, Alto Adige, Trieste, Friuli-Venezia Giulia).",
+                connections: [
+                    { tag: "Storia", text: "Considerata da molti storici come l'ultima guerra risorgimentale d'indipendenza." }
+                ]
+            },
+            {
+                id: 54,
+                year: "1919",
+                yearNum: 1919,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Suffragio Universale Maschile",
+                tags: ["Diritto", "Storia"],
+                summary: "Introduzione del suffragio universale per tutti i cittadini maschi maggiorenni.",
+                details: "Riforma elettorale decisiva che concede il voto a tutti i maschi di almeno 21 anni (o che abbiano prestato servizio militare), ampliando la partecipazione politica democratica.",
+                connections: [
+                    { tag: "Diritto", text: "Tappa fondamentale nel cammino verso la piena democrazia elettorale." }
+                ]
+            },
+            {
+                id: 55,
+                year: "1946 (2 Giu)",
+                yearNum: 1946,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Referendum Istituzionale & Nascita della Repubblica",
+                tags: ["Diritto", "Storia"],
+                summary: "L'Italia sceglie la Repubblica; primo voto storico esteso anche alle donne.",
+                details: "Il 2 giugno 1946 gli italiani sceglieranno la forma repubblicana rispetto alla monarchia. È il primo voto politico nazionale a suffragio universale effettivo anche femminile.",
+                connections: [
+                    { tag: "Diritto", text: "Svolta costituzionale e nascita dell'Assemblea Costituente." }
+                ]
+            },
+            {
+                id: 56,
+                year: "1948 (5 Mag/1 Gen)",
+                yearNum: 1948,
+                epoch: "risorgimento",
+                epochName: "Risorgimento & Età Contemp.",
+                title: "Costituzione & Emblema della Repubblica Italiana",
+                tags: ["Diritto", "Storia"],
+                summary: "Entrata in vigore della Costituzione ed approvazione ufficiale dell'Emblema Repubblicano.",
+                details: "La Costituzione Italiana entra in vigore il 1° gennaio 1948. Il 5 maggio 1948 viene ufficialmente approvato l'Emblema della Repubblica Italiana (la stella, la ruota dentata, i rami di ulivo e quercia).",
+                connections: [
+                    { tag: "Diritto", text: "Vetta suprema dell'ordinamento giuridico italiano fondato sulla democrazia e sul lavoro." }
+                ]
+            }
+        ];
+
+        // RENDER LOGIC
+        let currentEpochFilter = 'all';
+        let currentTagFilter = 'all';
+        let currentSearchQuery = '';
+
+        const timelineScroll = document.getElementById('timelineScroll');
+        const searchInput = document.getElementById('searchInput');
+        const activeFilterCount = document.getElementById('activeFilterCount');
+
+        // Render Events
+        function renderTimeline() {
+            timelineScroll.innerHTML = '';
+
+            const filteredEvents = timelineEvents.filter(ev => {
+                const matchesEpoch = (currentEpochFilter === 'all') || (ev.epoch === currentEpochFilter);
+                const matchesTag = (currentTagFilter === 'all') || (ev.tags.includes(currentTagFilter));
+                const matchesSearch = ev.title.toLowerCase().includes(currentSearchQuery) || 
+                                      ev.year.toLowerCase().includes(currentSearchQuery) ||
+                                      ev.summary.toLowerCase().includes(currentSearchQuery) ||
+                                      ev.details.toLowerCase().includes(currentSearchQuery);
+
+                return matchesEpoch && matchesTag && matchesSearch;
+            });
+
+            activeFilterCount.innerText = filteredEvents.length;
+
+            if (filteredEvents.length === 0) {
+                timelineScroll.innerHTML = `
+                    <div class="w-full text-center py-12 text-parchment-800 font-cinzel text-lg">
+                        <i class="fa-solid fa-scroll text-3xl mb-2 text-imperial-bronze block"></i>
+                        Nessun evento trovato con i filtri selezionati.
+                    </div>
+                `;
+                return;
+            }
+
+            filteredEvents.forEach((ev, idx) => {
+                // Determine card color scheme based on epoch
+                let epochBorder = 'border-imperial-gold';
+                let epochBadgeBg = 'bg-imperial-gold text-parchment-900';
+                
+                switch(ev.epoch) {
+                    case 'antica':
+                        epochBorder = 'border-red-800';
+                        epochBadgeBg = 'bg-red-900 text-red-100';
+                        break;
+                    case 'alto-medioevo':
+                        epochBorder = 'border-amber-800';
+                        epochBadgeBg = 'bg-amber-900 text-amber-100';
+                        break;
+                    case 'basso-medioevo':
+                        epochBorder = 'border-emerald-800';
+                        epochBadgeBg = 'bg-emerald-900 text-emerald-100';
+                        break;
+                    case 'rinascimento':
+                        epochBorder = 'border-purple-800';
+                        epochBadgeBg = 'bg-purple-900 text-purple-100';
+                        break;
+                    case 'illuminismo':
+                        epochBorder = 'border-yellow-700';
+                        epochBadgeBg = 'bg-yellow-800 text-yellow-100';
+                        break;
+                    case 'risorgimento':
+                        epochBorder = 'border-blue-800';
+                        epochBadgeBg = 'bg-blue-900 text-blue-100';
+                        break;
+                }
+
+                // Create Item Container
+                const el = document.createElement('div');
+                el.className = `flex-none w-80 sm:w-96 bg-parchment-50 border-2 ${epochBorder} rounded-xl p-5 card-shadow transition-all duration-300 transform hover:-translate-y-2 cursor-pointer relative group`;
+                
+                // Tags HTML
+                const tagsHTML = ev.tags.map(t => {
+                    let tagStyle = "bg-gray-800 text-gray-100";
+                    if (t === 'Storia') tagStyle = "bg-red-950 text-red-200 border-red-800";
+                    if (t === 'Diritto') tagStyle = "bg-blue-950 text-blue-200 border-blue-800";
+                    if (t === 'Economia') tagStyle = "bg-amber-950 text-amber-200 border-amber-800";
+                    if (t === 'Letteratura') tagStyle = "bg-emerald-950 text-emerald-200 border-emerald-800";
+
+                    return `<span class="text-[10px] font-bold px-2 py-0.5 rounded border ${tagStyle}">${t}</span>`;
+                }).join(' ');
+
+                el.innerHTML = `
+                    <!-- Year Badge Floating Pin -->
+                    <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-parchment-900 border-2 border-imperial-gold px-4 py-1 rounded-full text-imperial-gold font-cinzel font-bold text-sm shadow-md group-hover:bg-imperial-crimson group-hover:text-parchment-100 transition-colors">
+                        ${ev.year}
+                    </div>
+
+                    <!-- Header -->
+                    <div class="mt-3 mb-2 flex items-center justify-between">
+                        <span class="text-[10px] font-cinzel font-bold px-2 py-0.5 rounded ${epochBadgeBg} uppercase tracking-wider">
+                            ${ev.epochName}
+                        </span>
+                    </div>
+
+                    <!-- Title -->
+                    <h3 class="font-playfair font-bold text-lg text-parchment-900 group-hover:text-imperial-crimson transition-colors line-clamp-2 mb-2">
+                        ${ev.title}
+                    </h3>
+
+                    <!-- Tags -->
+                    <div class="flex flex-wrap gap-1 mb-3">
+                        ${tagsHTML}
+                    </div>
+
+                    <!-- Summary -->
+                    <p class="text-xs text-parchment-800 font-body line-clamp-3 leading-relaxed">
+                        ${ev.summary}
+                    </p>
+
+                    <!-- Footer Link -->
+                    <div class="mt-4 pt-3 border-t border-imperial-bronze/20 flex justify-between items-center text-xs font-cinzel text-imperial-bronze font-bold group-hover:text-imperial-crimson">
+                        <span>Dettagli Interdisciplinari</span>
+                        <i class="fa-solid fa-arrow-right-long transform group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                `;
+
+                // Modal Click Event
+                el.addEventListener('click', () => openModal(ev));
+
+                timelineScroll.appendChild(el);
+            });
+        }
+
+        // MODAL LOGIC
+        const modal = document.getElementById('eventModal');
+        const modalContainer = document.getElementById('modalContainer');
+        const closeModalBtn = document.getElementById('closeModal');
+        const closeModalBtn2 = document.getElementById('closeModalBtn');
+
+        function openModal(ev) {
+            document.getElementById('modalYear').innerText = ev.year;
+            document.getElementById('modalTitle').innerText = ev.title;
+            document.getElementById('modalDescription').innerText = ev.details;
+
+            // Epoch Badge
+            document.getElementById('modalEpochBadge').innerHTML = `
+                <span class="font-cinzel text-xs font-bold px-3 py-1 rounded-full bg-parchment-900 text-imperial-gold border border-imperial-gold uppercase">
+                    ${ev.epochName}
+                </span>
+            `;
+
+            // Tags
+            document.getElementById('modalTags').innerHTML = ev.tags.map(t => {
+                let tagStyle = "bg-gray-800 text-gray-100";
+                if (t === 'Storia') tagStyle = "bg-red-950 text-red-200 border-red-800";
+                if (t === 'Diritto') tagStyle = "bg-blue-950 text-blue-200 border-blue-800";
+                if (t === 'Economia') tagStyle = "bg-amber-950 text-amber-200 border-amber-800";
+                if (t === 'Letteratura') tagStyle = "bg-emerald-950 text-emerald-200 border-emerald-800";
+
+                return `<span class="text-xs font-bold px-2.5 py-1 rounded border ${tagStyle}">${t}</span>`;
+            }).join(' ');
+
+            // Connections
+            document.getElementById('modalConnections').innerHTML = ev.connections.map(c => `
+                <li class="flex items-start gap-2">
+                    <span class="font-bold text-imperial-crimson">• ${c.tag}:</span>
+                    <span>${c.text}</span>
+                </li>
+            `).join('');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContainer.classList.remove('scale-95');
+                modalContainer.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modalContainer.classList.remove('scale-100');
+            modalContainer.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        closeModalBtn.addEventListener('click', closeModal);
+        closeModalBtn2.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // FILTERS CONTROLLER
+        document.querySelectorAll('.filter-epoch-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-epoch-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-imperial-gold', 'text-parchment-900', 'font-semibold');
+                    b.classList.add('text-parchment-100');
+                });
+                e.target.classList.add('active', 'bg-imperial-gold', 'text-parchment-900', 'font-semibold');
+                e.target.classList.remove('text-parchment-100');
+
+                currentEpochFilter = e.target.getAttribute('data-epoch');
+                renderTimeline();
+            });
+        });
+
+        document.querySelectorAll('.filter-tag-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-tag-btn').forEach(b => b.classList.remove('active', 'ring-2', 'ring-imperial-gold'));
+                e.target.classList.add('active', 'ring-2', 'ring-imperial-gold');
+
+                currentTagFilter = e.target.getAttribute('data-tag');
+                renderTimeline();
+            });
+        });
+
+        // SEARCH CONTROLLER
+        searchInput.addEventListener('input', (e) => {
+            currentSearchQuery = e.target.value.toLowerCase().trim();
+            renderTimeline();
+        });
+
+        // HORIZONTAL SCROLL BUTTONS
+        const scrollAmount = 400;
+        document.getElementById('scrollLeft').addEventListener('click', () => {
+            timelineScroll.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+
+        document.getElementById('scrollRight').addEventListener('click', () => {
+            timelineScroll.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
+
+        // INITIALIZE APP ON LOAD
+        window.onload = function() {
+            renderTimeline();
+        };
+    </script>
+</body>
+</html>
